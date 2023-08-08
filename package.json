@@ -1,0 +1,12 @@
+{
+  "name": "sql-table-generator",
+  "version": "0.0.1",
+  "description": "An SQL Statement generator using Javascript",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "akhil-naidu",
+  "license": "ISC"
+}
