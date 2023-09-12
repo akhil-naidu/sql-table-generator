@@ -1,37 +1,34 @@
-const createTable = (tableName, columns) => {
-  const columnDefinitions = columns.map((column) => {
-    let definition = `${column.name} ${column.type}`;
+import knex from './knex.js';
 
-    if (column.primary) {
-      definition += ' PRIMARY KEY';
+const createTable = (tableName, columns, foreignKeys = []) => {
+  return knex.schema.createTable(tableName, (table) => {
+    for (const column of columns) {
+      const col = table[column.type](column.name);
+
+      if (column.primaryKey) {
+        col.primary();
+      }
+
+      if (column.unique) {
+        col.unique();
+      }
+
+      if (column.notNull) {
+        col.notNullable();
+      }
+
+      if (column.default !== undefined) {
+        col.defaultTo(column.default);
+      }
     }
 
-    if (column.notNull) {
-      definition += ' NOT NULL';
+    for (const foreignKey of foreignKeys) {
+      table
+        .foreign(foreignKey.column)
+        .references(foreignKey.refColumn)
+        .inTable(foreignKey.refTable);
     }
-
-    if (column.default !== undefined) {
-      definition += ` DEFAULT ${column.default}`;
-    }
-
-    return definition;
   });
-
-  const createStatement = `CREATE TABLE ${tableName} (${columnDefinitions.join(
-    ', ',
-  )})`;
-
-  return createStatement;
 };
 
 export default createTable;
-
-// const createTableSQL = createTable('todos', [
-//   { name: 'id', type: 'uuid', primary: true, default: 'gen_random_uuid()' },
-//   { name: 'task', type: 'text', notNull: true },
-//   { name: 'completed', type: 'boolean', default: 'false' },
-//   { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-//   { name: 'updated_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-// ]);
-
-// console.log(createTableSQL);

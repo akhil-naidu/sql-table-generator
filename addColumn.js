@@ -1,20 +1,25 @@
-const addColumn = (tableName, columnName, columnType, defaultValue = null) => {
-  let addColumnStatement = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`;
+import knex from './knex.js';
 
-  if (defaultValue !== null) {
-    addColumnStatement += ` DEFAULT ${defaultValue}`;
-  }
+const addColumn = (tableName, column) => {
+  return knex.schema.table(tableName, (table) => {
+    table[column.type](column.name);
 
-  return addColumnStatement;
+    if (column.primaryKey) {
+      table.primary(column.name);
+    }
+
+    if (column.unique) {
+      table.unique(column.name);
+    }
+
+    if (column.notNull) {
+      table.notNullable(column.name);
+    }
+
+    if (column.default !== undefined) {
+      table.defaultTo(column.default);
+    }
+  });
 };
 
 export default addColumn;
-
-// const addColumnSQL = generateAddColumnSQL(
-//   'todos',
-//   'due_date',
-//   'date',
-//   "'2023-08-15'",
-// );
-
-// console.log(addColumnSQL);
